@@ -28,9 +28,12 @@ async function run() {
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
         // console.log("Pinged your deployment. You successfully connected to MongoDB!");
-        const optionsCollection = client.db('foodFlow').collection('options')
-        const bookingsCollection = client.db('foodFlow').collection('booking')
-        const usersCollection = client.db('foodFlow').collection('users')
+        const optionsCollection = client.db('foodFlow').collection('options');
+        const dishesCollection = client.db('foodFlow').collection('dishes');
+        const bookingsCollection = client.db('foodFlow').collection('booking');
+        const foodBookingsCollection = client.db('foodFlow').collection('foodBooking');
+        const usersCollection = client.db('foodFlow').collection('users');
+        const chefsCollection = client.db('foodFlow').collection('chefs');
 
         app.get('/options', async (req, res) => {
             const date = req.query.date;
@@ -80,6 +83,29 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/foodBooking', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email }
+            const booking = await foodBookingsCollection.find(query).toArray();
+            res.send(booking);
+        })
+
+
+
+        app.post('/foodBooking', async (req, res) => {
+            const food = req.body;
+            const result = await foodBookingsCollection.insertOne(food);
+            res.send(result);
+        })
+
+
+
+        app.get('/dishes', async (req, res) => {
+            const query = {};
+            const dishes = await dishesCollection.find(query).toArray();
+            res.send(dishes);
+        })
+
         app.get('/users', async (req, res) => {
             const query = {};
             const users = await usersCollection.find(query).toArray();
@@ -111,6 +137,25 @@ async function run() {
             const result = await usersCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
 
+        })
+
+        app.get('/chefs', async (req, res) => {
+            const query = {};
+            const chefs = await chefsCollection.find(query).toArray();
+            res.send(chefs);
+        })
+
+        app.post('/chefs', async (req, res) => {
+            const chef = req.body;
+            const result = await chefsCollection.insertOne(chef);
+            res.send(result);
+        })
+
+        app.delete('/chefs/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const result = await chefsCollection.deleteOne(filter);
+            res.send(result);
         })
 
 
